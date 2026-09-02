@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>yolo_ama_a_emi.exe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0f1117;
+    --panel: #171a23;
+    --panel-line: #262b38;
+    --text: #d7dae2;
+    --dim: #6b7180;
+    --blue: #7aa2f7;
+    --green: #8fd19e;
+    --pink: #f5a7c6;
+    --pink-bright: #ff9fc7;
+    --amber: #e6b673;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0;
+    padding:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family:'JetBrains Mono', monospace;
+    min-height:100vh;
+  }
+
+  body{
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding: 48px 16px 96px;
+  }
+
+  .window{
+    width:100%;
+    max-width:720px;
+    background: var(--panel);
+    border:1px solid var(--panel-line);
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow: 0 30px 80px -30px rgba(0,0,0,0.7);
+  }
+
+  .titlebar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:12px 16px;
+    background:#12141c;
+    border-bottom:1px solid var(--panel-line);
+  }
+
+  .dot{ width:11px; height:11px; border-radius:50%; }
+  .dot.red{ background:#ff5f56; }
+  .dot.yellow{ background:#ffbd2e; }
+  .dot.green{ background:#27c93f; }
+
+  .titlebar-label{
+    margin-left:8px;
+    color:var(--dim);
+    font-size:12.5px;
+  }
+
+  .term{
+    padding: 28px 24px 8px;
+    font-size:14.5px;
+    line-height:1.65;
+  }
+
+  .line{ white-space:pre-wrap; word-break:break-word; }
+  .prompt{ color:var(--green); }
+  .path{ color:var(--blue); }
+  .muted{ color:var(--dim); }
+  .ok{ color:var(--green); }
+  .key{ color:var(--blue); }
+  .str{ color:var(--amber); }
+  .heart{ color:var(--pink-bright); }
+
+  .cursor{
+    display:inline-block;
+    width:8px; height:16px;
+    background:var(--pink-bright);
+    vertical-align:-3px;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  #boot{ }
+  #boot .line{ opacity:0; }
+
+  .commit{
+    margin: 2px 0 2px 0;
+    padding-left: 14px;
+    border-left: 2px solid var(--panel-line);
+  }
+  .commit b{ color:var(--text); font-weight:500; }
+  .hash{ color:var(--dim); }
+
+  .letter{
+    font-family:'Quicksand', sans-serif;
+    background:#12141c;
+    border:1px solid var(--panel-line);
+    border-radius:8px;
+    padding:22px 22px 20px;
+    margin:18px 0 22px;
+    font-size:15.5px;
+    line-height:1.85;
+    color:#e7e9ee;
+    display:none;
+  }
+  .letter p{ margin:0 0 14px; }
+  .letter p:last-child{ margin-bottom:0; }
+  .signature{
+    font-family:'JetBrains Mono', monospace;
+    color: var(--pink-bright);
+    font-size:14px;
+  }
+
+  .comment{ color: #6d9c6d; }
+
+  .footer-note{
+    margin-top: 6px;
+    color: var(--dim);
+    font-size: 12.5px;
+  }
+
+  #skip{
+    display:none;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    #boot .line{ opacity:1 !important; }
+  }
+
+  /* ---------- decorative controller ---------- */
+  .controller-wrap{
+    width:100%;
+    max-width:720px;
+    display:flex;
+    justify-content:center;
+    margin-top:22px;
+  }
+
+  .controller{
+    display:flex;
+    align-items:center;
+    gap:28px;
+    background: var(--panel);
+    border:1px solid var(--panel-line);
+    border-radius:16px;
+    padding:14px 22px;
+    box-shadow: 0 20px 50px -25px rgba(0,0,0,0.6);
+  }
+
+  .dpad{
+    display:grid;
+    grid-template-columns: repeat(3, 30px);
+    grid-template-rows: repeat(3, 30px);
+    gap:2px;
+  }
+
+  .dpad button{
+    grid-column: 2; grid-row: 2;
+    background:#20242f;
+    border:1px solid var(--panel-line);
+    color: var(--dim);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:13px;
+    padding:0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dpad button:active{ background:#2b3040; color:var(--text); }
+
+  .dpad .up{ grid-column:2; grid-row:1; border-radius:6px 6px 0 0; }
+  .dpad .down{ grid-column:2; grid-row:3; border-radius:0 0 6px 6px; }
+  .dpad .left{ grid-column:1; grid-row:2; border-radius:6px 0 0 6px; }
+  .dpad .right{ grid-column:3; grid-row:2; border-radius:0 6px 6px 0; }
+  .dpad .center{ grid-column:2; grid-row:2; background:#171a23; border-color:#171a23; }
+
+  .abtns{
+    display:grid;
+    grid-template-columns: repeat(2, 34px);
+    grid-template-rows: repeat(2, 34px);
+    gap:6px;
+    transform: rotate(-8deg);
+  }
+  .abtns button{
+    border-radius:50%;
+    border:1px solid var(--panel-line);
+    background:#20242f;
+    color: var(--dim);
+    font-size:12px;
+    font-family:'JetBrains Mono', monospace;
+    cursor:pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .abtns button:active{ background:#2b3040; color:var(--text); }
+  .btn-b{ grid-column:1; grid-row:2; }
+  .btn-a{ grid-column:2; grid-row:1; }
+
+  /* ---------- easter egg modal ---------- */
+  .egg-overlay{
+    position:fixed;
+    inset:0;
+    background: rgba(6,7,11,0.92);
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    z-index:100;
+    overflow-y:auto;
+    padding: 40px 16px 60px;
+  }
+  .egg-overlay.show{ display:flex; }
+
+  .egg-panel{
+    width:100%;
+    max-width:760px;
+    text-align:center;
+  }
+
+  .egg-title{
+    font-family:'Quicksand', sans-serif;
+    color:#f2eef5;
+    font-size:22px;
+    font-weight:600;
+    margin: 4px 0 4px;
+  }
+  .egg-sub{
+    font-family:'JetBrains Mono', monospace;
+    color: var(--pink-bright);
+    font-size:12.5px;
+    margin-bottom: 22px;
+  }
+
+  .egg-close{
+    position:sticky;
+    top:0;
+    float:right;
+    background:none;
+    border:1px solid var(--panel-line);
+    color: var(--dim);
+    width:34px; height:34px;
+    border-radius:50%;
+    font-size:16px;
+    cursor:pointer;
+    margin-bottom:10px;
+  }
+  .egg-close:hover{ color: var(--text); }
+
+  .scrapbook{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap: 6px 2px;
+    padding: 6px 4px 10px;
+  }
+
+  .photo-card{
+    background:#fff;
+    padding: 8px 8px 20px;
+    border-radius:3px;
+    box-shadow: 0 12px 24px -10px rgba(0,0,0,0.6);
+    width:150px;
+    position:relative;
+  }
+  .photo-card img{
+    display:block;
+    width:100%;
+    height:150px;
+    object-fit:cover;
+    border-radius:1px;
+  }
+
+  .tape{
+    position:absolute;
+    width:46px;
+    height:18px;
+    background: rgba(245,167,198,0.55);
+    top:-9px;
+    left:50%;
+    transform: translateX(-50%) rotate(-4deg);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  }
+
+  @media (max-width:520px){
+    .photo-card{ width: 42%; }
+    .photo-card img{ height: 130px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="window">
+  <div class="titlebar">
+    <div class="dot red"></div>
+    <div class="dot yellow"></div>
+    <div class="dot green"></div>
+    <div class="titlebar-label">yolo@corazon: ~/para_emi</div>
+  </div>
+
+  <div class="term">
+    <div id="boot"></div>
+
+    <div id="rest" style="display:none;">
+      <div class="line"><span class="prompt">yolo@corazon</span><span class="muted">:~$</span> cat sobre_ti.log</div>
+      <div class="commit"><span class="hash">a1f9c02</span> — <b>conocernos</b> <span class="muted">(el commit que cambió todo)</span></div>
+      <div class="commit"><span class="hash">c3e281d</span> — <b>primera vez que te dije Emi</b></div>
+      <div class="commit"><span class="hash">7bb410a</span> — <b>tú me pusiste Yolo</b> <span class="muted">y se quedó para siempre</span></div>
+      <div class="commit"><span class="hash">f02a9e4</span> — <b>seguimos aquí</b> <span class="muted">(este commit, hoy)</span></div>
+
+      <br>
+      <div class="line"><span class="prompt">yolo@corazon</span><span class="muted">:~$</span> cat carta.txt</div>
+
+      <div class="letter" id="letter">
+        <p><span class="comment">// Emi,</span></p>
+        <p>Sé que te pasas el día entre llaves, punto y comas y errores que no te dejan compilar tranquilo. Así que pensé: nada mejor que hablarte en tu propio idioma.</p>
+        <p>Esta página no tiene ningún bug. Bueno, tiene uno: cada vez que pienso en ti se me acelera algo por dentro y todavía no encuentro el <span class="key">try/catch</span> para eso.</p>
+        <p>Me gusta que me expliques cosas que no entiendo con toda la paciencia del mundo. Me gusta que te emociones con un código que por fin corre. Me gusta ser tu Yolo y que tú seas mi Emi, sin explicación, sin necesitar una.</p>
+        <p>Si algún día te sientes perdido entre tantas líneas, acuérdate de esto: hay algo en tu vida que nunca vas a tener que debuggear, y soy yo, queriéndote exactamente así.</p>
+        <p><span class="comment">// una cosa más...</span></p>
+        <p>Eres el amor de mi vida. Ser tu mejor amiga fue lo mejor que me pudo pasar, pero ser tu novia jamás pensé que se volviera realidad. Gracias por ser el hombre que eres, por ser tan increíble y maravilloso.</p>
+        <p>No tengo ni idea de cómo se hacen estas cosas, pero oyeee, quería intentar hablarte en un idioma que no entiendo en lo absoluto pero que sé que te gusta.</p>
+        <p>Te amo, Emi. Espero te guste este detallito, mi amor — que hasta con Claude me costó medio cerebro ajajja.</p>
+        <p class="signature">— Goldi <span class="heart">&lt;3</span></p>
+      </div>
+
+      <div class="line"><span class="prompt">yolo@corazon</span><span class="muted">:~$</span> echo $ESTADO_ACTUAL</div>
+      <div class="line ok">pensando_en_ti = True <span class="cursor"></span></div>
+
+      <div class="footer-note">hecha a mano, sin frameworks, solo con cariño 💻🩷</div>
+    </div>
+  </div>
+</div>
+
+<div class="controller-wrap">
+  <div class="controller" aria-hidden="true">
+    <div class="dpad">
+      <button class="up" data-key="up">▲</button>
+      <button class="left" data-key="left">◀</button>
+      <div class="center"></div>
+      <button class="right" data-key="right">▶</button>
+      <button class="down" data-key="down">▼</button>
+    </div>
+    <div class="abtns">
+      <button class="btn-b" data-key="b">B</button>
+      <button class="btn-a" data-key="a">A</button>
+    </div>
+  </div>
+</div>
+
+<div class="egg-overlay" id="eggOverlay">
+  <div class="egg-panel">
+    <button class="egg-close" id="eggClose">×</button>
+    <div class="egg-title">de amigos, a mejores amigos, a esta aventura</div>
+    <div class="egg-sub">// easter egg encontrado 🩷</div>
+    <div class="scrapbook" id="scrapbook"></div>
+  </div>
+</div>
+
+<script>
+  const bootLines = [
+    { text: 'Iniciando amor.exe ...', cls: 'muted' },
+    { text: 'Cargando módulo: <span class="key">Yolo</span> ↔ <span class="key">Emi</span>', cls: 'line' },
+    { text: 'Compilando sentimientos ... <span class="ok">OK</span>', cls: 'line' },
+    { text: 'Sin errores encontrados <span class="heart">♥</span>', cls: 'line' },
+  ];
+
+  const bootEl = document.getElementById('boot');
+  const restEl = document.getElementById('rest');
+  const letterEl = document.getElementById('letter');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function typeLine(el, html, speed){
+    return new Promise(resolve => {
+      const plain = html.replace(/<[^>]*>/g, '');
+      const div = document.createElement('div');
+      div.className = 'line';
+      div.style.opacity = 1;
+      el.appendChild(div);
+
+      if(reduceMotion){
+        div.innerHTML = html;
+        resolve();
+        return;
+      }
+
+      let i = 0;
+      const timer = setInterval(() => {
+        i++;
+        div.textContent = plain.slice(0, i);
+        if(i >= plain.length){
+          clearInterval(timer);
+          div.innerHTML = html;
+          resolve();
+        }
+      }, speed);
+    });
+  }
+
+  async function boot(){
+    for(const l of bootLines){
+      await typeLine(bootEl, l.text, 18);
+      await new Promise(r => setTimeout(r, 220));
+    }
+    await new Promise(r => setTimeout(r, 350));
+    restEl.style.display = 'block';
+    setTimeout(() => { letterEl.style.display = 'block'; }, 900);
+  }
+
+  boot();
+
+  /* ---------- konami code easter egg ---------- */
+  const KONAMI = ['up','up','down','down','left','right','left','right','b','a'];
+  let progress = [];
+
+  const overlay = document.getElementById('eggOverlay');
+  const scrapbook = document.getElementById('scrapbook');
+  const eggClose = document.getElementById('eggClose');
+
+  const rotations = [-6, 4, -3, 7, -8, 2, 5, -4, 3, -7, 6, -2];
+
+  function buildGallery(){
+    if(scrapbook.childElementCount) return;
+    for(let i = 1; i <= 12; i++){
+      const card = document.createElement('div');
+      card.className = 'photo-card';
+      card.style.transform = `rotate(${rotations[(i-1) % rotations.length]}deg)`;
+      if(i % 3 === 0){
+        const tape = document.createElement('div');
+        tape.className = 'tape';
+        card.appendChild(tape);
+      }
+      const img = document.createElement('img');
+      img.src = `img/foto${i}.jpg`;
+      img.alt = 'Yolo y Emi';
+      img.loading = 'lazy';
+      card.appendChild(img);
+      scrapbook.appendChild(card);
+    }
+  }
+
+  function openEgg(){
+    buildGallery();
+    overlay.classList.add('show');
+  }
+  function closeEgg(){
+    overlay.classList.remove('show');
+  }
+
+  function registerInput(key){
+    progress.push(key);
+    if(progress.length > KONAMI.length) progress.shift();
+    if(progress.length === KONAMI.length && progress.every((k, idx) => k === KONAMI[idx])){
+      progress = [];
+      openEgg();
+    }
+  }
+
+  document.querySelectorAll('.controller [data-key]').forEach(btn => {
+    btn.addEventListener('click', () => registerInput(btn.dataset.key));
+  });
+
+  const keyMap = {
+    ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right',
+    b:'b', B:'b', a:'a', A:'a'
+  };
+  document.addEventListener('keydown', (e) => {
+    if(keyMap[e.key]) registerInput(keyMap[e.key]);
+  });
+
+  eggClose.addEventListener('click', closeEgg);
+  overlay.addEventListener('click', (e) => {
+    if(e.target === overlay) closeEgg();
+  });
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape') closeEgg();
+  });
+</script>
+
+</body>
+</html>
